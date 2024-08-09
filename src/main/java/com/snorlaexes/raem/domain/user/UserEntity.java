@@ -1,4 +1,4 @@
-package com.snorlaexes.raem.user;
+package com.snorlaexes.raem.domain.user;
 
 import lombok.Builder;
 import lombok.Getter;

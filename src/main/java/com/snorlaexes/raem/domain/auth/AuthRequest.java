@@ -1,4 +1,4 @@
-package com.snorlaexes.raem.auth;
+package com.snorlaexes.raem.domain.auth;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -9,6 +9,14 @@ public class AuthRequest {
     public static class SignUpReqDTO {
         @NotNull
         String username;
+        @NotNull
+        String email;
+        @NotNull
+        String password;
+    }
+
+    @Getter
+    public static class SignInReqDTO {
         @NotNull
         String email;
         @NotNull

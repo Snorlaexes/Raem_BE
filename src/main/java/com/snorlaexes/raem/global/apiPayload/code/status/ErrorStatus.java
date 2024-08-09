@@ -17,9 +17,12 @@ public enum ErrorStatus implements BaseErrorCode {
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
 
     // 유저 관련 응답
-    _USER_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "USER400", "사용 중인 이메일입니다.")
-    // ~~~ 관련 응답 ....
+    _USER_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "USER400", "사용 중인 이메일입니다."),
+    _USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "USER401", "해당 유저가 존재하지 않습니다."),
 
+    // 인가 관련 응답
+    _ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH401", "AccessToken이 만료되었습니다."),
+    _AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "AUTH402", "이메일 또는 비밀번호가 틀렸습니다."),
     ;
 
     private final HttpStatus httpStatus;
