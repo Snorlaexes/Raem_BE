@@ -19,10 +19,15 @@ public enum ErrorStatus implements BaseErrorCode {
     // 유저 관련 응답
     _USER_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "USER400", "사용 중인 이메일입니다."),
     _USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "USER401", "해당 유저가 존재하지 않습니다."),
+    _WRONG_PASSWORD(HttpStatus.BAD_REQUEST, "USER402", "비밀번호가 틀렸습니다."),
+    _WRONG_CODE(HttpStatus.BAD_REQUEST, "USER403", "인증번호가 다릅니다."),
+    _CODE_NOT_EXIST(HttpStatus.BAD_REQUEST, "USER404", "인증 정보가 존재하지 않습니다."),
 
     // 인가 관련 응답
     _ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH401", "AccessToken이 만료되었습니다."),
     _AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "AUTH402", "이메일 또는 비밀번호가 틀렸습니다."),
+
+    _UNABLE_TO_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL501", "이메일 전송 중 문제가 발생했습니다."),
     ;
 
     private final HttpStatus httpStatus;

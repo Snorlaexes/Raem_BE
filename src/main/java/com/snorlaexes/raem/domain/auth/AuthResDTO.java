@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-public class AuthResponse {
+public class AuthResDTO {
 
     @Builder
     @Getter

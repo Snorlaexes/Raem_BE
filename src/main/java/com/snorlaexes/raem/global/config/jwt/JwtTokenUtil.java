@@ -2,19 +2,27 @@ package com.snorlaexes.raem.global.config.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 @Component
 public class JwtTokenUtil {
+    private final SecretKey secretKey;
+    public JwtTokenUtil(@Value("${spring.jwt.key}") String secret) {
+        byte[] keyBytes = secret.getBytes();
+        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
+    }
+
     private SecretKey getSigningKey() {
-        return Keys.secretKeyFor(SignatureAlgorithm.HS512);
+        return this.secretKey;
     }
 
     public String extractUserId(String token) {
@@ -31,15 +39,21 @@ public class JwtTokenUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        return (Claims) Jwts.parserBuilder().setSigningKey(this.getSigningKey()).build().parseClaimsJws(token);
+        return Jwts.parserBuilder().setSigningKey(this.getSigningKey()).build().parseClaimsJws(token).getBody();
     }
 
     private Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    public String generateAccessToken(String subject) {
-        return Jwts.builder().setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
+    public String generateAccessToken(String userId) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId);
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(userId)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 3))
                 .signWith(this.getSigningKey()).compact();
     }
