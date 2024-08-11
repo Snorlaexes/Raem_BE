@@ -24,7 +24,7 @@ public class AuthService {
     private final JwtTokenUtil jwtTokenUtil;
 
     @Transactional
-    public UserEntity createUser(AuthRequest.SignUpReqDTO req) {
+    public UserEntity createUser(AuthReqDTO.SignUpReqDTO req) {
         //이메일 중복 확인
         if (userRepository.findByEmail(req.email) != null) {
             throw new ExceptionHandler(ErrorStatus._USER_ALREADY_EXIST);
@@ -45,7 +45,7 @@ public class AuthService {
     }
 
     @Transactional
-    public TokenEntity.Tokens signIn(AuthRequest.SignInReqDTO req) {
+    public TokenEntity.Tokens signIn(AuthReqDTO.SignInReqDTO req) {
         String refreshToken = null;
 
         UserEntity user = userRepository.findByEmail(req.email);
@@ -56,7 +56,7 @@ public class AuthService {
         }
 
         //비밀번호 비교
-        if (passwordEncoder.matches(req.password, user.getPassword())) {
+        if (!passwordEncoder.matches(req.password, user.getPassword())) {
             throw new ExceptionHandler(ErrorStatus._AUTHENTICATION_FAILED);
         }
 

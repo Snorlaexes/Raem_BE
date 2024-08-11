@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final AuthService authService;
     @PostMapping("/signup")
-    public ApiResponse<AuthResponse.SignUpResponseDTO> signUp(@RequestBody AuthRequest.SignUpReqDTO req) {
+    public ApiResponse<AuthResDTO.SignUpResponseDTO> signUp(@RequestBody AuthReqDTO.SignUpReqDTO req) {
         UserEntity user = authService.createUser(req);
-        return ApiResponse.onSuccess(AuthResponse.SignUpResponseDTO.signUpResultDTO(user));
+        return ApiResponse.onSuccess(AuthResDTO.SignUpResponseDTO.signUpResultDTO(user));
     }
 
     @PostMapping("/signin")
-    public ApiResponse<AuthResponse.SignInResponseDTO> signIn(@RequestBody AuthRequest.SignInReqDTO req) {
-        return ApiResponse.onSuccess(AuthResponse.SignInResponseDTO.signInResponseDTO(authService.signIn(req)));
+    public ApiResponse<AuthResDTO.SignInResponseDTO> signIn(@RequestBody AuthReqDTO.SignInReqDTO req) {
+        return ApiResponse.onSuccess(AuthResDTO.SignInResponseDTO.signInResponseDTO(authService.signIn(req)));
     }
 }

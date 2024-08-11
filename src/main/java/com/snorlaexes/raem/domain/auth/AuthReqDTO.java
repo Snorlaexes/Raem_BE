@@ -3,7 +3,7 @@ package com.snorlaexes.raem.domain.auth;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
-public class AuthRequest {
+public class AuthReqDTO {
 
     @Getter
     public static class SignUpReqDTO {
