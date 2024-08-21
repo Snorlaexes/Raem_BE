@@ -138,6 +138,5 @@ replay_pid*
 
 src/main/resources/application.yml
 HELP.md
-/gradle/*
 build/
 .gradle/
