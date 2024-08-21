@@ -15,6 +15,8 @@ public enum ErrorStatus implements BaseErrorCode {
     _BAD_REQUEST(HttpStatus.BAD_REQUEST,"COMMON400","잘못된 요청입니다."),
     _UNAUTHORIZED(HttpStatus.UNAUTHORIZED,"COMMON401","인증이 필요합니다."),
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
+    _WRONG_EXTENSION(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "COMMON404", "잘못된 파일 형식입니다."),
+    _WRONG_PARAM(HttpStatus.FORBIDDEN, "COMMON405", "잘못된 파라미터입니다."),
 
     // 유저 관련 응답
     _USER_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "USER400", "사용 중인 이메일입니다."),
@@ -27,7 +29,13 @@ public enum ErrorStatus implements BaseErrorCode {
     _ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH401", "AccessToken이 만료되었습니다."),
     _AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "AUTH402", "이메일 또는 비밀번호가 틀렸습니다."),
 
+    // 이메일 관련 응답
     _UNABLE_TO_SEND_EMAIL(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL501", "이메일 전송 중 문제가 발생했습니다."),
+
+    // 수면 관련 응답
+    _DATA_SIZE_TOO_SMALL(HttpStatus.BAD_REQUEST, "SLEEP601", "데이터 사이즈가 너무 작습니다."),
+    _SLEEP_DATA_NOT_FOUND(HttpStatus.BAD_REQUEST, "SLEEP602", "수면 데이터가 없습니다."),
+    _URL_NOT_FOUND(HttpStatus.BAD_REQUEST, "SLEEP603", "수면 데이터 파일을 찾을 수 없습니다."),
     ;
 
     private final HttpStatus httpStatus;
