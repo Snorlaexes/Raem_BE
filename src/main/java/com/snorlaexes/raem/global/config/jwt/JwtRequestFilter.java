@@ -1,8 +1,5 @@
 package com.snorlaexes.raem.global.config.jwt;
 
-import com.snorlaexes.raem.global.apiPayload.code.status.ErrorStatus;
-import com.snorlaexes.raem.global.apiPayload.exception.ExceptionHandler;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,33 +20,19 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String path = request.getRequestURI();
-        if (path.startsWith("/v3/api-docs") || path.startsWith("/swagger-ui") || path.startsWith("/api/auth") || path.startsWith("/health")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         final String requestTokenHeader = request.getHeader("Authorization");
 
-        String userId;
-        String jwtToken;
+        String userId = null;
+        String jwtToken = null;
 
         try {
             logger.info("Filter Chain in " + request.getRequestURI());
             if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
                 jwtToken = requestTokenHeader.substring(7);
-                try {
-                    userId = jwtTokenUtil.extractUserId(jwtToken);
-                } catch (IllegalArgumentException e) {
-                    System.out.println("Unable to get JWT Token");
-                    throw new ExceptionHandler(ErrorStatus._UNAUTHORIZED);
-                } catch (ExpiredJwtException e) {
-                    System.out.println("JWT Token has expired");
-                    throw new ExceptionHandler(ErrorStatus._UNAUTHORIZED);
-                }
+                userId = jwtTokenUtil.extractUserId(jwtToken);
+
             } else {
                 logger.warn("JWT Token does not begin with Bearer String");
-                throw new ExceptionHandler(ErrorStatus._UNAUTHORIZED);
             }
 
             if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {

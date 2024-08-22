@@ -1,5 +1,6 @@
 package com.snorlaexes.raem.domain.sleep;
 
+import com.snorlaexes.raem.domain.sleep.entities.LearningDataEntity;
 import com.snorlaexes.raem.domain.sleep.entities.SleepDataEntity;
 import com.snorlaexes.raem.domain.sleep.entities.SleepDataUrlEntity;
 import lombok.*;
@@ -24,6 +25,13 @@ public class SleepResDTO {
         }
 
         public static SaveDataResponseDTO organizeDataResultDTO (SleepDataEntity entity) {
+            return SaveDataResponseDTO.builder()
+                    .dataId(entity.getId())
+                    .createdAt(entity.getCreatedAt())
+                    .build();
+        }
+
+        public static SaveDataResponseDTO saveLearningDataResultDTO (LearningDataEntity entity) {
             return SaveDataResponseDTO.builder()
                     .dataId(entity.getId())
                     .createdAt(entity.getCreatedAt())
