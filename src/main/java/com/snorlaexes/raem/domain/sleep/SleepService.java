@@ -2,6 +2,7 @@ package com.snorlaexes.raem.domain.sleep;
 
 import com.snorlaexes.raem.domain.sleep.Enums.BadAwakeReason;
 import com.snorlaexes.raem.domain.sleep.entities.*;
+import com.snorlaexes.raem.domain.sleep.repository.LearningDataRepository;
 import com.snorlaexes.raem.domain.sleep.repository.SleepDataRepository;
 import com.snorlaexes.raem.domain.sleep.repository.SleepDataUrlRepository;
 import com.snorlaexes.raem.domain.user.UserEntity;
@@ -27,6 +28,7 @@ public class SleepService {
     private final UserRepository userRepository;
     private final SleepDataRepository sleepDataRepository;
     private final AmazonS3Manager s3Manager;
+    private final LearningDataRepository learningDataRepository;
 
     @Transactional
     public SleepDataUrlEntity sendS3AndSave(String userId, LocalDate sleptAt, MultipartFile file) {
@@ -47,7 +49,7 @@ public class SleepService {
         }
 
         // S3 저장 및 url 저장
-        String keyName = userId + "/" + sleptAt;
+        String keyName = "personal/" + userId + "/" + sleptAt;
         String s3Url = s3Manager.uploadFile(keyName, file);
 
         SleepDataUrlEntity newEntity = SleepDataUrlEntity.builder()
@@ -126,5 +128,33 @@ public class SleepService {
     public SleepDataUrlEntity getDataUrlService(SleepReqDTO.GetDataUrlDTO req) {
         return sleepDataUrlRepository.findById(req.getDataId())
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus._URL_NOT_FOUND));
+    }
+
+    @Transactional
+    public LearningDataEntity tempDataSave(String tag, LocalDate sleptAt, MultipartFile file) {
+        // 확장자 검사
+        assert file != null;
+        String filename = file.getOriginalFilename();
+        assert filename != null;
+        if (!Objects.equals(filename.split("\\.")[1], "csv")) {
+            throw new ExceptionHandler(ErrorStatus._WRONG_EXTENSION);
+        }
+
+        // 파일 사이즈 검사
+        if (file.getSize() == 0) {
+            throw new ExceptionHandler(ErrorStatus._DATA_SIZE_TOO_SMALL);
+        }
+
+        // S3 저장 및 url 저장
+        String keyName = "learn/" + tag + "/" + sleptAt;
+        String s3Url = s3Manager.uploadFile(keyName, file);
+
+        LearningDataEntity newEntity = LearningDataEntity.builder()
+                .url(s3Url)
+                .tag(tag)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        return learningDataRepository.save(newEntity);
     }
 }
