@@ -1,5 +1,6 @@
 package com.snorlaexes.raem.domain.sleep;
 
+import com.snorlaexes.raem.domain.sleep.entities.AnalysisDataEntity;
 import com.snorlaexes.raem.domain.sleep.entities.SleepDataEntity;
 import com.snorlaexes.raem.domain.sleep.entities.SleepDataUrlEntity;
 import com.snorlaexes.raem.global.apiPayload.ApiResponse;
@@ -9,7 +10,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,12 +32,19 @@ public class SleepController {
     }
 
     @PatchMapping("/data")
-    public ApiResponse<SleepResDTO.SaveReasonResponseDTO> saveBadReason(@RequestBody SleepReqDTO.SaveReasonDTO req) {
-        return ApiResponse.onSuccess(SleepResDTO.SaveReasonResponseDTO.saveReasonResultDTO(sleepService.saveReasonService(req)));
+    public ApiResponse<SleepResDTO.SaveReasonResponseDTO> saveBadReason(@AuthenticationPrincipal String userId, @RequestBody SleepReqDTO.SaveReasonDTO req) throws IOException {
+        SleepDataEntity saveReasonResult = sleepService.saveReasonService(req);
+        sleepService.updateAnalysisDatas(userId, saveReasonResult);
+        return ApiResponse.onSuccess(SleepResDTO.SaveReasonResponseDTO.saveReasonResultDTO(saveReasonResult));
     }
 
     @GetMapping("/data")
     public ApiResponse<SleepResDTO.GetDataUrlResponseDTO> getDataUrl(@RequestBody SleepReqDTO.GetDataUrlDTO req) {
         return ApiResponse.onSuccess(SleepResDTO.GetDataUrlResponseDTO.getDataUrlResponseDTO(sleepService.getDataUrlService(req)));
+    }
+
+    @GetMapping("/analysis")
+    public ApiResponse<List<AnalysisDataEntity>> getRangeData(@RequestParam("range") String range, @AuthenticationPrincipal String userId) {
+        return ApiResponse.onSuccess(sleepService.retrieveAnalysisData(userId, range));
     }
 }
