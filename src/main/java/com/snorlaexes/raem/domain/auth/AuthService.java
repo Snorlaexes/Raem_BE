@@ -38,6 +38,7 @@ public class AuthService {
                 .email(req.email)
                 .password(encodedPassword)
                 .provider("local")
+                .imageUrl(null)
                 .created_at(LocalDateTime.now())
                 .updated_at(LocalDateTime.now())
                 .build();
