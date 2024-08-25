@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 @Service
@@ -335,21 +336,41 @@ public class SleepService {
         return objectMapper.writeValueAsString(queryEntityList);
     }
 
+    public List<SleepDataEntity> retrieveWeeklyData(String userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus._USER_NOT_FOUND));
+
+        ZonedDateTime requestedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+
+        LocalDate firstDateOfWeek = requestedDateTime.toLocalDate().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate lastDateOfWeek = requestedDateTime.toLocalDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+        return sleepDataRepository.findAllByUserAndSleptAtBetween(user, firstDateOfWeek.minusDays(1), lastDateOfWeek);
+    }
+
     public List<AnalysisDataEntity> retrieveAnalysisData(String userId, String range) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus._USER_NOT_FOUND));
         
         ZonedDateTime requestedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
-        String tag = "";
-        switch (range) {
-            case "week" -> {
-                Map<String, Integer> currentWeekOfMonth = getCurrentWeekOfMonth(LocalDate.from(requestedDateTime));
-                tag = requestedDateTime.getYear() + "_" + currentWeekOfMonth.get("Month") + "_" + currentWeekOfMonth.get("WeekNum");
-            }
-            case "month" -> tag = requestedDateTime.format(DateTimeFormatter.ofPattern("yyyy_MM"));
-            case "year" -> tag = requestedDateTime.format(DateTimeFormatter.ofPattern("yyyy"));
-        }
+        String tag;
 
-        return analysisDataRepository.findByUserAndTagContaining(user, tag);
+        if (range.equals("monthly")) {
+            tag = requestedDateTime.getYear() + "_" + requestedDateTime.getMonthValue();
+            return analysisDataRepository.findAllByUserAndTypeAndTagContaining(user, Range.Weekly, tag);
+        } else {
+            tag = requestedDateTime.format(DateTimeFormatter.ofPattern("yyyy"));
+            return analysisDataRepository.findAllByUserAndTypeAndTagContaining(user, Range.Monthly, tag);
+        }
+    }
+
+    public InsightEntity retrieveInsightEntity(String userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus._USER_NOT_FOUND));
+
+        ZonedDateTime requestedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+        String tag = requestedDateTime.format(DateTimeFormatter.ofPattern("yyyy"));
+
+        return insightRepository.findByUserAndTag(user, tag);
     }
 }

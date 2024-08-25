@@ -1,9 +1,10 @@
 package com.snorlaexes.raem.domain.sleep;
 
-import com.snorlaexes.raem.domain.sleep.entities.AnalysisDataEntity;
 import com.snorlaexes.raem.domain.sleep.entities.SleepDataEntity;
 import com.snorlaexes.raem.domain.sleep.entities.SleepDataUrlEntity;
 import com.snorlaexes.raem.global.apiPayload.ApiResponse;
+import com.snorlaexes.raem.global.apiPayload.code.status.ErrorStatus;
+import com.snorlaexes.raem.global.apiPayload.exception.ExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -12,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,8 +43,19 @@ public class SleepController {
         return ApiResponse.onSuccess(SleepResDTO.GetDataUrlResponseDTO.getDataUrlResponseDTO(sleepService.getDataUrlService(req)));
     }
 
-    @GetMapping("/analysis")
-    public ApiResponse<List<AnalysisDataEntity>> getRangeData(@RequestParam("range") String range, @AuthenticationPrincipal String userId) {
-        return ApiResponse.onSuccess(sleepService.retrieveAnalysisData(userId, range));
+    @GetMapping(value = "/analysis")
+    public ApiResponse<?> getRangeData(@RequestParam("range") String range, @AuthenticationPrincipal String userId) {
+        if (range.equals("weekly")) {
+            return ApiResponse.onSuccess(SleepResDTO.GetWeeklyDataDTO.getWeeklyDataDTO(sleepService.retrieveWeeklyData(userId)));
+        } else if (range.equals("monthly") || range.equals("annually")) {
+            return ApiResponse.onSuccess(SleepResDTO.GetOverMonthDataListDTO.getOverMonthDataListDTO(range, sleepService.retrieveAnalysisData(userId, range)));
+        } else {
+            throw new ExceptionHandler(ErrorStatus._WRONG_PARAM);
+        }
+    }
+
+    @GetMapping("/analysis/insight")
+    public ApiResponse<SleepResDTO.GetInsightDTO> getInsight(@AuthenticationPrincipal String userId) {
+        return ApiResponse.onSuccess(SleepResDTO.GetInsightDTO.getInsightDTO(sleepService.retrieveInsightEntity(userId)));
     }
 }
