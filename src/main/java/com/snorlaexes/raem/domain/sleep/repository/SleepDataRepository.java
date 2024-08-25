@@ -4,9 +4,9 @@ import com.snorlaexes.raem.domain.sleep.entities.SleepDataEntity;
 import com.snorlaexes.raem.domain.user.UserEntity;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.util.Date;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.util.List;
 
 public interface SleepDataRepository extends MongoRepository<SleepDataEntity, String> {
-    Optional<SleepDataEntity> findBySleptAtAndUser(Date date, UserEntity user);
+    List<SleepDataEntity> findAllByUserAndSleptAtBetween(UserEntity user, LocalDate first, LocalDate last);
 }
