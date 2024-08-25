@@ -53,4 +53,24 @@ public class UserResDTO {
                     .build();
         }
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class GetUserDataResponseDTO {
+        private String username;
+        private String email;
+        private String imageUrl;
+        private LocalDateTime created_at;
+
+        public static GetUserDataResponseDTO getUserDataResponseDTO(UserEntity user) {
+            return GetUserDataResponseDTO.builder()
+                    .username(user.getUsername())
+                    .email(user.getEmail())
+                    .imageUrl(user.getId())
+                    .created_at(user.getCreated_at())
+                    .build();
+        }
+    }
 }

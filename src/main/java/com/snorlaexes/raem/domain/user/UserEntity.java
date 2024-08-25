@@ -20,6 +20,7 @@ public class UserEntity {
     private String username;
     private String email;
     private String password;
+    private String imageUrl;
     private String provider;
     @CreatedDate
     private LocalDateTime created_at;

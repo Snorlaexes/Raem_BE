@@ -4,6 +4,9 @@ import com.snorlaexes.raem.domain.user.verifyCode.VerificationCodeEntity;
 import com.snorlaexes.raem.domain.user.verifyCode.VerificationCodeRepository;
 import com.snorlaexes.raem.global.apiPayload.code.status.ErrorStatus;
 import com.snorlaexes.raem.global.apiPayload.exception.ExceptionHandler;
+import com.snorlaexes.raem.global.aws.s3.AmazonS3Manager;
+import com.snorlaexes.raem.global.aws.s3.Uuid;
+import com.snorlaexes.raem.global.aws.s3.UuidRepository;
 import com.snorlaexes.raem.global.config.jwt.TokenEntity;
 import com.snorlaexes.raem.global.config.jwt.TokenRepository;
 import com.snorlaexes.raem.global.smtp.SMTPService;
@@ -11,9 +14,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +29,8 @@ public class UserService {
     private final TokenRepository tokenRepository;
     private final SMTPService smtpService;
     private final VerificationCodeRepository verificationCodeRepository;
+    private final AmazonS3Manager amazonS3Manager;
+    private final UuidRepository uuidRepository;
 
     @Transactional
     public UserEntity updateUserName(String userId, UserReqDTO req) {
@@ -142,5 +149,30 @@ public class UserService {
                 .expiredAt(new Date(System.currentTimeMillis() + 10000))
                 .build();
         verificationCodeRepository.save(newCode);
+    }
+
+    @Transactional
+    public UserEntity retrieveUser(String userId){
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus._USER_NOT_FOUND));
+    }
+
+    @Transactional
+    public void updateProfileImage(String userId, MultipartFile image) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus._USER_NOT_FOUND));
+
+        String uuid = UUID.randomUUID().toString();
+        Uuid savedUuid = uuidRepository.save(Uuid.builder().uuid(uuid).build());
+
+        //이미 프사가 있으면 s3에서 지우기
+        if (user.getImageUrl() != null){
+            String fileKeyName = user.getImageUrl().split("com/")[1];
+            amazonS3Manager.deleteFile(fileKeyName);
+        }
+
+        String imageUrl = amazonS3Manager.uploadFile("profile/" + savedUuid, image); // 이미지 업로드하기
+        user.setImageUrl(imageUrl); // 프로필 이미지 변경
+        userRepository.save(user);
     }
 }

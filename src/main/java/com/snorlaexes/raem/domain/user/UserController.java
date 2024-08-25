@@ -4,8 +4,10 @@ import com.snorlaexes.raem.global.apiPayload.ApiResponse;
 import com.snorlaexes.raem.global.apiPayload.code.status.ErrorStatus;
 import com.snorlaexes.raem.global.apiPayload.exception.ExceptionHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Objects;
 
@@ -16,7 +18,7 @@ public class UserController {
     private final UserService userService;
 
     @PatchMapping
-    public ApiResponse<Object> updateUserData(@RequestParam String target, @RequestParam(required = false) Integer step, @RequestBody UserReqDTO req, @AuthenticationPrincipal String userId) {
+    public ApiResponse<?> updateUserData(@RequestParam String target, @RequestParam(required = false) Integer step, @RequestBody UserReqDTO req, @AuthenticationPrincipal String userId) {
         if (Objects.equals(target, "name")) {
             UserEntity user = userService.updateUserName(userId, req);
             return ApiResponse.onSuccess(UserResDTO.UpdateUserNameResponseDTO.updateUserNameResultDTO(user));
@@ -54,6 +56,17 @@ public class UserController {
     @GetMapping("/test")
     public ApiResponse<UserResDTO.ProcessResponseDTO> test(@AuthenticationPrincipal String userId) {
         userService.expireTest(userId);
+        return ApiResponse.onSuccess(UserResDTO.ProcessResponseDTO.processResultDTO());
+    }
+
+    @GetMapping("/data")
+    public ApiResponse<UserResDTO.GetUserDataResponseDTO> getUserData(@AuthenticationPrincipal String userId) {
+        return ApiResponse.onSuccess(UserResDTO.GetUserDataResponseDTO.getUserDataResponseDTO(userService.retrieveUser(userId)));
+    }
+
+    @PatchMapping(value = "/image", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ApiResponse<?> updateProfileImage(@AuthenticationPrincipal String userId, @RequestPart MultipartFile image) {
+        userService.updateProfileImage(userId, image);
         return ApiResponse.onSuccess(UserResDTO.ProcessResponseDTO.processResultDTO());
     }
 }
