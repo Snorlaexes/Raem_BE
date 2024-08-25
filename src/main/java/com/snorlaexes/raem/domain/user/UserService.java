@@ -171,7 +171,7 @@ public class UserService {
             amazonS3Manager.deleteFile(fileKeyName);
         }
 
-        String imageUrl = amazonS3Manager.uploadFile("profile/" + savedUuid, image); // 이미지 업로드하기
+        String imageUrl = amazonS3Manager.uploadFile("profile/" + savedUuid.getUuid(), image); // 이미지 업로드하기
         user.setImageUrl(imageUrl); // 프로필 이미지 변경
         userRepository.save(user);
     }
