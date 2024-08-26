@@ -68,7 +68,7 @@ public class UserResDTO {
             return GetUserDataResponseDTO.builder()
                     .username(user.getUsername())
                     .email(user.getEmail())
-                    .imageUrl(user.getId())
+                    .imageUrl(user.getImageUrl())
                     .created_at(user.getCreated_at())
                     .build();
         }
