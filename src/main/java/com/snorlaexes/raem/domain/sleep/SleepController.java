@@ -64,4 +64,9 @@ public class SleepController {
     public ApiResponse<SleepResDTO.GetInsightDTO> getInsight(@AuthenticationPrincipal String userId) {
         return ApiResponse.onSuccess(SleepResDTO.GetInsightDTO.getInsightDTO(sleepService.retrieveInsightEntity(userId)));
     }
+
+    @GetMapping("/best")
+    public ApiResponse<SleepResDTO.GetBestSleepTimeDTO> getBestSleepTime(@AuthenticationPrincipal String userId) {
+        return ApiResponse.onSuccess(SleepResDTO.GetBestSleepTimeDTO.getBestSleepTimeDTO(sleepService.retrieveBestSleepTime(userId)));
+    }
 }

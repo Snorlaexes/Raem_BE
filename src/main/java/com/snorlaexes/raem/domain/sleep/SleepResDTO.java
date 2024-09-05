@@ -199,4 +199,18 @@ public class SleepResDTO {
                     .build();
         }
     }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class GetBestSleepTimeDTO {
+        String bestTime;
+
+        public static GetBestSleepTimeDTO getBestSleepTimeDTO(String bestTime) {
+            return GetBestSleepTimeDTO.builder()
+                    .bestTime(bestTime)
+                    .build();
+        }
+    }
 }
