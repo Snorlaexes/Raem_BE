@@ -261,7 +261,10 @@ public class SleepService {
         newBadReason.put(BadAwakeReason.STRESS, 0);
         newBadReason.put(BadAwakeReason.ALCOHOL, 0);
         newBadReason.put(BadAwakeReason.SMARTPHONE, 0);
-        newBadReason.put(sleepData.getBadAwakeReason(), 0);
+
+        if (sleepData.getBadAwakeReason() != null) {
+            newBadReason.put(sleepData.getBadAwakeReason(), 1);
+        }
 
         return AnalysisDataEntity.builder()
                 .user(user)
@@ -285,9 +288,11 @@ public class SleepService {
         analysisData.setInBedSum(analysisData.getInBedSum().plusSeconds(sleepData.getTimeOnBed().getSecond()));
         analysisData.setSleepTimeSum(analysisData.getSleepTimeSum().plusSeconds(sleepData.getSleepTime().getSecond()));
 
-        Map<BadAwakeReason, Integer> currentBadReasonsCount = analysisData.getBadAwakeReasonsCount();
-        currentBadReasonsCount.put(sleepData.getBadAwakeReason(), currentBadReasonsCount.get(sleepData.getBadAwakeReason()) + 1);
-        analysisData.setBadAwakeReasonsCount(currentBadReasonsCount);
+        if (sleepData.getBadAwakeReason() != null) {
+            Map<BadAwakeReason, Integer> currentBadReasonsCount = analysisData.getBadAwakeReasonsCount();
+            currentBadReasonsCount.put(sleepData.getBadAwakeReason(), currentBadReasonsCount.get(sleepData.getBadAwakeReason()) + 1);
+            analysisData.setBadAwakeReasonsCount(currentBadReasonsCount);
+        }
 
         analysisData.setUpdatedAt(LocalDateTime.now());
         return analysisData;
@@ -361,5 +366,25 @@ public class SleepService {
         String tag = requestedDateTime.format(DateTimeFormatter.ofPattern("yyyy"));
 
         return insightRepository.findByUserAndTag(user, tag);
+    }
+
+    @Transactional
+    public String retrieveBestSleepTime(String userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus._USER_NOT_FOUND));
+
+        List<SleepDataEntity> sleepDataEntities = sleepDataRepository.findAllByUserAndScoreGreaterThan(user, 3);
+
+        long sleepTimeSum = 0L;
+        long count = 0L;
+        for (SleepDataEntity data : sleepDataEntities) {
+            sleepTimeSum += data.getSleepTime().toSecondOfDay();
+            count += 1;
+        }
+
+        long sleepTimeAvg = sleepTimeSum / count;
+        Duration bestSleepDuration = Duration.ofSeconds(sleepTimeAvg);
+
+        return bestSleepDuration.toHoursPart() + "시간 " + bestSleepDuration.toMinutesPart() + "분";
     }
 }

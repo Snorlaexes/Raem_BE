@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface SleepDataRepository extends MongoRepository<SleepDataEntity, String> {
     List<SleepDataEntity> findAllByUserAndSleptAtBetween(UserEntity user, LocalDate first, LocalDate last);
+    List<SleepDataEntity> findAllByUserAndScoreGreaterThan(UserEntity user, Integer score);
 }
