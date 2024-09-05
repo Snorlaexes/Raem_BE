@@ -31,6 +31,8 @@ public class SleepDataEntity {
     LocalTime sleepTime;
     LocalTime timeOnBed;
 
+    LocalTime rem;
+
     @CreatedDate
     LocalDateTime createdAt;
     @LastModifiedDate
