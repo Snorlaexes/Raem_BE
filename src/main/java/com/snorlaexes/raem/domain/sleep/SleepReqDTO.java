@@ -1,35 +1,36 @@
 package com.snorlaexes.raem.domain.sleep;
 
-import com.snorlaexes.raem.domain.sleep.entities.InBedEntity;
-import com.snorlaexes.raem.domain.sleep.entities.SleepDataChildEntity;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
-import org.springframework.lang.Nullable;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 
 public class SleepReqDTO {
     @Getter
     public static class SaveDataDTO {
         @NotNull
-        LocalDate sleptAt;
-        @Nullable
+        LocalDateTime sleptAt; //'지금 취침하기'를 누른 순간
+        @NotNull
         Integer score;
-        @Nullable
-        LocalTime setTime;
-        @Nullable
-        LocalTime awakeAt;
-        @Nullable
-        TotalSleepDataChild totalSleepData;
+        @NotNull
+        LocalTime awakeAt; //실제 기상 시간
+        @NotNull
+        LocalTime fellAsleepAt; //잠든 시점(DreamAI가 '잔다'고 판단한 그때)
+        @NotNull
+        LocalTime rem; //렘 인터벌
+        @NotNull
+        LocalTime sleepTime; //총 수면 시간(렘+딥+코어)
+        /*@Nullable
+        SleepData sleepData;*/
     }
 
-    @Getter
-    public static class TotalSleepDataChild {
-        List<InBedEntity> inBed;
-        List<SleepDataChildEntity> sleepData;
-    }
+    /*@Getter
+    public static class SleepData {
+        LocalTime Rem;
+        LocalTime Deep;
+        LocalTime Core;
+    }*/
 
     @Getter
     public static class SaveReasonDTO {

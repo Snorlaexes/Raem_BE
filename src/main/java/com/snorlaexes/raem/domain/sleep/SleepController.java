@@ -26,8 +26,14 @@ public class SleepController {
     }
 
     @PostMapping(value = "/data", params = "type=json")
-    public ApiResponse<SleepResDTO.SaveDataResponseDTO> saveData(@RequestBody SleepReqDTO.SaveDataDTO req, @AuthenticationPrincipal String userId) {
+    public ApiResponse<SleepResDTO.SaveDataResponseDTO> saveData(@RequestBody SleepReqDTO.SaveDataDTO req, @AuthenticationPrincipal String userId) throws IOException {
         SleepDataEntity sleepData = sleepService.organizeSleepData(userId, req);
+
+        //3점 이상이면 바로 분석 데이터 업데이트
+        if (req.getScore() >= 3) {
+            sleepService.updateAnalysisDatas(userId, sleepData);
+        }
+
         return ApiResponse.onSuccess(SleepResDTO.SaveDataResponseDTO.organizeDataResultDTO(sleepData));
     }
 

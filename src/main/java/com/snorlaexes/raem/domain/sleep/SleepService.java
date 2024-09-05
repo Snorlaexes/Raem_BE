@@ -75,37 +75,26 @@ public class SleepService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus._USER_NOT_FOUND));
 
-        SleepReqDTO.TotalSleepDataChild totalSleepData = req.getTotalSleepData();
-        List<InBedEntity> inBedList = totalSleepData.getInBed();
-        List<SleepDataChildEntity> sleepDataChildList = totalSleepData.getSleepData();
+        LocalDateTime sleptAt = req.getSleptAt();
+        LocalDate sleptDate = sleptAt.toLocalDate();
+        LocalTime sleptTime = sleptAt.toLocalTime();
 
-        // In-Bed 누적 시간 계산
-        Duration inBedDuration = Duration.ZERO;
-        for (InBedEntity data : inBedList) {
-            inBedDuration = inBedDuration.plus(Duration.between(data.getStartTime(), data.getEndTime()));
-        }
-        LocalTime inBedTime = LocalTime.ofSecondOfDay(inBedDuration.getSeconds());
+        //잠들기까지 걸린 시간 계산
+        Duration fellAsleepDuration = Duration.between(sleptTime, req.getFellAsleepAt());
+        LocalTime fellAsleepTime = LocalTime.of(0,0).plusSeconds(fellAsleepDuration.getSeconds());
 
-        // awake, sleep 누적 시간 계산
-        Duration awakeDuration = Duration.ZERO;
-        Duration sleepDuration = Duration.ZERO;
-        for (SleepDataChildEntity data : sleepDataChildList) {
-            if (data.getState().equals("Awake")) {
-                awakeDuration = awakeDuration.plus(Duration.between(data.getStartTime(), data.getEndTime()));
-            } else {
-                sleepDuration = sleepDuration.plus(Duration.between(data.getStartTime(), data.getEndTime()));
-            }
-        }
-        LocalTime awakeTime = LocalTime.ofSecondOfDay(awakeDuration.getSeconds());
-        LocalTime sleepTime = LocalTime.ofSecondOfDay(sleepDuration.getSeconds());
+        //침대에 있던 시간 계산
+        Duration sleepTimeDuration = Duration.between(LocalTime.MIDNIGHT, req.getSleepTime());
+        LocalTime inBedTime = LocalTime.of(0,0).plusSeconds(sleepTimeDuration.getSeconds()).plusSeconds(fellAsleepDuration.getSeconds());
 
         SleepDataEntity newSleepData = SleepDataEntity.builder()
-                .sleptAt(req.getSleptAt())
+                .sleptAt(sleptDate)
                 .score(req.getScore())
                 .awakeTime(req.getAwakeAt())
                 .timeOnBed(inBedTime)
-                .sleepTime(awakeTime)
-                .fellAsleepTime(sleepTime)
+                .sleepTime(req.getSleepTime())
+                .fellAsleepTime(fellAsleepTime)
+                .rem(req.getRem())
                 .user(user)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
