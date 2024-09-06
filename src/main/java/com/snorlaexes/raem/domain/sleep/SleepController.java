@@ -51,13 +51,15 @@ public class SleepController {
 
     @GetMapping(value = "/analysis")
     public ApiResponse<?> getRangeData(@RequestParam("range") String range, @AuthenticationPrincipal String userId) {
-        if (range.equals("weekly")) {
-            return ApiResponse.onSuccess(SleepResDTO.GetWeeklyDataDTO.getWeeklyDataDTO(sleepService.retrieveWeeklyData(userId)));
-        } else if (range.equals("monthly") || range.equals("annually")) {
-            return ApiResponse.onSuccess(SleepResDTO.GetOverMonthDataListDTO.getOverMonthDataListDTO(range, sleepService.retrieveAnalysisData(userId, range)));
-        } else {
-            throw new ExceptionHandler(ErrorStatus._WRONG_PARAM);
-        }
+        return switch (range) {
+            case "weekly" ->
+                    ApiResponse.onSuccess(SleepResDTO.GetWeeklyDataDTO.getWeeklyDataDTO(sleepService.retrieveWeeklyData(userId)));
+            case "monthly", "annually" ->
+                    ApiResponse.onSuccess(SleepResDTO.GetOverMonthDataListDTO.getOverMonthDataListDTO(range, sleepService.retrieveAnalysisData(userId, range)));
+            case "daily" ->
+                    ApiResponse.onSuccess(SleepResDTO.GetDailyDataDTO.getDailyDataDTO(sleepService.retrieveDailyData(userId)));
+            default -> throw new ExceptionHandler(ErrorStatus._WRONG_PARAM);
+        };
     }
 
     @GetMapping("/analysis/insight")
