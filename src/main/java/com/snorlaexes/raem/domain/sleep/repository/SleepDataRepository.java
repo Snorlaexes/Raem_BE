@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface SleepDataRepository extends MongoRepository<SleepDataEntity, String> {
+    SleepDataEntity findByUserAndSleptAt(UserEntity user, LocalDate date);
     List<SleepDataEntity> findAllByUserAndSleptAtBetween(UserEntity user, LocalDate first, LocalDate last);
     List<SleepDataEntity> findAllByUserAndScoreGreaterThan(UserEntity user, Integer score);
 }

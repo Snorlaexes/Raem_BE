@@ -330,6 +330,15 @@ public class SleepService {
         return objectMapper.writeValueAsString(queryEntityList);
     }
 
+    public SleepDataEntity retrieveDailyData(String userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus._USER_NOT_FOUND));
+
+        ZonedDateTime requestedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+
+        return sleepDataRepository.findByUserAndSleptAt(user, requestedDateTime.toLocalDate());
+    }
+
     public List<SleepDataEntity> retrieveWeeklyData(String userId) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus._USER_NOT_FOUND));

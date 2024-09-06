@@ -77,11 +77,11 @@ public class SleepResDTO {
     @AllArgsConstructor
     public static class GetWeeklyDataDTO {
         Range type;
-        List<GetWeeklyDataListDTO> list;
+        List<GetDailyDataDTO> list;
 
         public static GetWeeklyDataDTO getWeeklyDataDTO(List<SleepDataEntity> entityList) {
-            List<GetWeeklyDataListDTO> convertList = entityList.stream()
-                    .map(GetWeeklyDataListDTO::getWeeklyDataListDTO)
+            List<GetDailyDataDTO> convertList = entityList.stream()
+                    .map(GetDailyDataDTO::getDailyDataDTO)
                     .toList();
 
             return GetWeeklyDataDTO.builder()
@@ -95,7 +95,7 @@ public class SleepResDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class GetWeeklyDataListDTO {
+    public static class GetDailyDataDTO {
         LocalDate sleptAt;
         Integer score;
         BadAwakeReason badAwakeReason;
@@ -104,8 +104,8 @@ public class SleepResDTO {
         LocalTime sleepTime;
         LocalTime timeOnBed;
 
-        public static GetWeeklyDataListDTO getWeeklyDataListDTO(SleepDataEntity entity) {
-            return GetWeeklyDataListDTO.builder()
+        public static GetDailyDataDTO getDailyDataDTO(SleepDataEntity entity) {
+            return GetDailyDataDTO.builder()
                     .sleptAt(entity.getSleptAt())
                     .score(entity.getScore())
                     .badAwakeReason(entity.getBadAwakeReason())
