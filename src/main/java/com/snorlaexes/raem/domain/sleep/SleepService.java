@@ -183,7 +183,7 @@ public class SleepService {
         }
 
         // GPT Query Update
-        String insightTag = String.valueOf(sleepData.getSleptAt().getYear());
+        /*String insightTag = String.valueOf(sleepData.getSleptAt().getYear());
         InsightEntity insight = insightRepository.findByUserAndTag(user, insightTag);
         List<AnalysisDataEntity> thisMonthDatas = analysisDataRepository.findByUserAndTagContaining(user, insightTag);
         String gptQueryData = generateQueryData(thisMonthDatas);
@@ -208,7 +208,7 @@ public class SleepService {
             insight.setUpdatedAt(LocalDateTime.now());
 
             insightRepository.save(insight);
-        }
+        }*/
     }
 
     private Map<String, Integer> getCurrentWeekOfMonth(LocalDate date) {
