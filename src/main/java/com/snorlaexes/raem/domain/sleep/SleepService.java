@@ -47,8 +47,8 @@ public class SleepService {
         // 확장자 검사
         assert file != null;
         String filename = file.getOriginalFilename();
-        assert filename != null;
-        if (!Objects.equals(filename.split("\\.")[1], "csv")) {
+        String extension = filename.split("\\.")[1];
+        if (!Objects.equals(extension, "csv") && !Objects.equals(extension, "mlmodel")) {
             throw new ExceptionHandler(ErrorStatus._WRONG_EXTENSION);
         }
 
@@ -58,16 +58,80 @@ public class SleepService {
         }
 
         // S3 저장 및 url 저장
-        String keyName = "personal/" + userId + "/" + sleptAt;
-        String s3Url = s3Manager.uploadFile(keyName, file);
+        String keyName = "";
+        String type = "";
+        if (Objects.equals(extension, "mlmodel")) {
+            keyName = "personal/" + userId + "/model.mlmodel";
+            type = "model";
+            String s3Url = s3Manager.uploadFile(keyName, file);
 
-        SleepDataUrlEntity newEntity = SleepDataUrlEntity.builder()
-                .url(s3Url)
-                .user(user)
-                .createdAt(LocalDateTime.now())
-                .build();
+            SleepDataUrlEntity sleepDataUrlEntity = sleepDataUrlRepository.findByUserAndType(user, type);
+            if (sleepDataUrlEntity == null) { //기존 엔티티가 없으면 새로 추가
+                SleepDataUrlEntity newEntity = SleepDataUrlEntity.builder()
+                        .url(s3Url)
+                        .user(user)
+                        .type(type)
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(LocalDateTime.now())
+                        .build();
+                return sleepDataUrlRepository.save(newEntity);
 
-        return sleepDataUrlRepository.save(newEntity);
+            } else { //기존 엔티티 업데이트
+                sleepDataUrlEntity.setUrl(s3Url);
+                sleepDataUrlEntity.setUpdatedAt(LocalDateTime.now());
+                return sleepDataUrlRepository.save(sleepDataUrlEntity);
+            }
+
+        } else if (filename.contains("record")) {
+            keyName = "personal/" + userId + "/" + sleptAt + "/realtime.csv";
+            type = "realtime";
+            String s3Url = s3Manager.uploadFile(keyName, file);
+
+            SleepDataUrlEntity newEntity = SleepDataUrlEntity.builder()
+                    .url(s3Url)
+                    .user(user)
+                    .type(type)
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
+                    .build();
+            return sleepDataUrlRepository.save(newEntity);
+
+        } else if (filename.contains("Stage")) {
+            keyName = "personal/" + userId + "/" + sleptAt + "/stage.csv";
+            type = "stage";
+            String s3Url = s3Manager.uploadFile(keyName, file);
+
+            SleepDataUrlEntity newEntity = SleepDataUrlEntity.builder()
+                    .url(s3Url)
+                    .user(user)
+                    .type(type)
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
+                    .build();
+            return sleepDataUrlRepository.save(newEntity);
+
+        } else {
+            keyName = "personal/" + userId + "/dataset.csv";
+            type = "dataset";
+            String s3Url = s3Manager.uploadFile(keyName, file);
+
+            SleepDataUrlEntity sleepDataUrlEntity = sleepDataUrlRepository.findByUserAndType(user, type);
+            if (sleepDataUrlEntity == null) { //기존 엔티티가 없으면 새로 추가
+                SleepDataUrlEntity newEntity = SleepDataUrlEntity.builder()
+                        .url(s3Url)
+                        .user(user)
+                        .type(type)
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(LocalDateTime.now())
+                        .build();
+                return sleepDataUrlRepository.save(newEntity);
+
+            } else { //기존 엔티티 업데이트
+                sleepDataUrlEntity.setUrl(s3Url);
+                sleepDataUrlEntity.setUpdatedAt(LocalDateTime.now());
+                return sleepDataUrlRepository.save(sleepDataUrlEntity);
+            }
+        }
     }
 
     @Transactional
@@ -116,9 +180,20 @@ public class SleepService {
     }
 
     @Transactional
-    public SleepDataUrlEntity getDataUrlService(SleepReqDTO.GetDataUrlDTO req) {
-        return sleepDataUrlRepository.findById(req.getDataId())
+    public List<SleepDataUrlEntity> getDataUrlService(String userId, SleepReqDTO.GetDataUrlDTO req) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus._USER_NOT_FOUND));
+
+        Date start = Date.from(req.getSleptAt().atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date end = Date.from(req.getSleptAt().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        SleepDataUrlEntity recordUrlEntity = sleepDataUrlRepository.findByUserAndTypeAndCreatedAt(userId, "realtime", start, end)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus._URL_NOT_FOUND));
+
+        SleepDataUrlEntity stageUrlEntity = sleepDataUrlRepository.findByUserAndTypeAndCreatedAt(userId, "stage", start, end)
+                .orElseThrow(() -> new ExceptionHandler(ErrorStatus._URL_NOT_FOUND));
+
+        return Arrays.asList(recordUrlEntity, stageUrlEntity);
     }
 
     @Transactional

@@ -47,6 +47,22 @@ public class SleepResDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class UpdateURLResponseDTO {
+        String dataId;
+        LocalDateTime updatedAt;
+
+        public static UpdateURLResponseDTO updateURLResultDTO (SleepDataUrlEntity entity){
+            return UpdateURLResponseDTO.builder()
+                    .dataId(entity.getId())
+                    .updatedAt(entity.getUpdatedAt())
+                    .build();
+        }
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class SaveReasonResponseDTO {
         LocalDateTime updatedAt;
 
@@ -61,11 +77,30 @@ public class SleepResDTO {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class GetDataUrlListResponseDTO {
+        List<GetDataUrlResponseDTO> list;
+
+        public static GetDataUrlListResponseDTO getDataUrlListResponseDTO (List<SleepDataUrlEntity> entities){
+            List<GetDataUrlResponseDTO> list = entities.stream()
+                    .map(GetDataUrlResponseDTO::getDataUrlResponseDTO).toList();
+
+            return GetDataUrlListResponseDTO.builder()
+                    .list(list)
+                    .build();
+        }
+    }
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class GetDataUrlResponseDTO {
+        String type;
         String url;
 
         public static GetDataUrlResponseDTO getDataUrlResponseDTO (SleepDataUrlEntity entity){
             return GetDataUrlResponseDTO.builder()
+                    .type(entity.getType())
                     .url(entity.getUrl())
                     .build();
         }
