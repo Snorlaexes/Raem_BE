@@ -23,11 +23,11 @@ public class UserController {
             UserEntity user = userService.updateUserName(userId, req);
             return ApiResponse.onSuccess(UserResDTO.UpdateUserNameResponseDTO.updateUserNameResultDTO(user));
 
-        } else if (Objects.equals(target, "email") && step == 1) { //인증 메일 전송
+        } /*else if (Objects.equals(target, "email") && step == 1) { //인증 메일 전송
             userService.sendAuthenticationEmail(userId, req);
             return ApiResponse.onSuccess(UserResDTO.ProcessResponseDTO.processResultDTO());
 
-        } else if (Objects.equals(target, "email") && step == 2) { //인증 코드 확인 후 이메일 변경
+        }*/ else if (Objects.equals(target, "email") && step == 2) { //인증 코드 확인 후 이메일 변경
             UserEntity user = userService.updateEmail(userId, req);
             return ApiResponse.onSuccess(UserResDTO.UpdateEmailResponseDTO.updateEmailResultDTO(user));
 
@@ -50,12 +50,6 @@ public class UserController {
     @DeleteMapping("/drawout")
     public ApiResponse<UserResDTO.ProcessResponseDTO> drawOut(@AuthenticationPrincipal String userId) {
         userService.drawOut(userId);
-        return ApiResponse.onSuccess(UserResDTO.ProcessResponseDTO.processResultDTO());
-    }
-
-    @GetMapping("/test")
-    public ApiResponse<UserResDTO.ProcessResponseDTO> test(@AuthenticationPrincipal String userId) {
-        userService.expireTest(userId);
         return ApiResponse.onSuccess(UserResDTO.ProcessResponseDTO.processResultDTO());
     }
 

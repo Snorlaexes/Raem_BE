@@ -3,8 +3,10 @@ package com.snorlaexes.raem.domain.sleep;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Date;
 
 public class SleepReqDTO {
     @Getter
@@ -43,6 +45,6 @@ public class SleepReqDTO {
     @Getter
     public static class GetDataUrlDTO {
         @NotNull
-        String dataId;
+        LocalDate sleptAt;
     }
 }

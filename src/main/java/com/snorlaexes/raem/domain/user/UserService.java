@@ -9,7 +9,6 @@ import com.snorlaexes.raem.global.aws.s3.Uuid;
 import com.snorlaexes.raem.global.aws.s3.UuidRepository;
 import com.snorlaexes.raem.global.config.jwt.TokenEntity;
 import com.snorlaexes.raem.global.config.jwt.TokenRepository;
-import com.snorlaexes.raem.global.smtp.SMTPService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.UUID;
 
 @Service
@@ -27,7 +25,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenRepository tokenRepository;
-    private final SMTPService smtpService;
     private final VerificationCodeRepository verificationCodeRepository;
     private final AmazonS3Manager amazonS3Manager;
     private final UuidRepository uuidRepository;
@@ -99,31 +96,6 @@ public class UserService {
     }
 
     @Transactional
-    public void sendAuthenticationEmail(String userId, UserReqDTO req){
-        UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new ExceptionHandler(ErrorStatus._USER_NOT_FOUND));
-
-        int authenticationCode = generateAuthenticationCode();
-
-        String subject = "[Ræm] 이메일 인증 코드 발송";
-        String body = "<p>귀하의 이메일 주소를 통해 인증번호가 요청되었습니다. Pumble 인증 코드는 다음과 같습니다." +
-                        "</p><br><strong>"+authenticationCode+"</strong><br><br><p>" +
-                        "해당 코드는 10분 뒤 만료됩니다." +
-                        "<br>Raem 운영팀</p>";
-        smtpService.sendAsyncEmail(req.getNewEmail(), subject, body);
-
-        VerificationCodeEntity newCode = VerificationCodeEntity.builder()
-                .verifyCode(authenticationCode)
-                .user(user)
-                .build();
-        verificationCodeRepository.save(newCode);
-    }
-
-    private Integer generateAuthenticationCode() {
-        return (int) (Math.floor(Math.random() * (9999 - 1111 + 1)) + 1111);
-    }
-
-    @Transactional
     public void drawOut(String userId) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new ExceptionHandler(ErrorStatus._USER_NOT_FOUND));
@@ -136,19 +108,6 @@ public class UserService {
 
         //유저 삭제
         userRepository.delete(user);
-    }
-
-    @Transactional
-    public void expireTest(String userId){
-        UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new ExceptionHandler(ErrorStatus._USER_NOT_FOUND));
-        int authenticationCode = generateAuthenticationCode();
-        VerificationCodeEntity newCode = VerificationCodeEntity.builder()
-                .verifyCode(authenticationCode)
-                .user(user)
-                .expiredAt(new Date(System.currentTimeMillis() + 10000))
-                .build();
-        verificationCodeRepository.save(newCode);
     }
 
     @Transactional

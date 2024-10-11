@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,9 +21,17 @@ import java.time.LocalDate;
 public class SleepController {
     private final SleepService sleepService;
     @PostMapping(value = "/data", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_OCTET_STREAM_VALUE}, params = "type=file")
-    public ApiResponse<SleepResDTO.SaveDataResponseDTO> saveFile(@RequestPart LocalDate sleptAt, @RequestPart MultipartFile file, @AuthenticationPrincipal String userId) {
+    public ApiResponse<?> saveFile(@RequestPart LocalDate sleptAt, @RequestPart MultipartFile file, @AuthenticationPrincipal String userId) {
         SleepDataUrlEntity sleepDataUrlEntity = sleepService.sendS3AndSave(userId, sleptAt, file);
-        return ApiResponse.onSuccess(SleepResDTO.SaveDataResponseDTO.saveDataResultDTO(sleepDataUrlEntity));
+
+        String createdAt = sleepDataUrlEntity.getCreatedAt().toString().split("\\.")[0];
+        String updatedAt = sleepDataUrlEntity.getUpdatedAt().toString().split("\\.")[0];
+
+        if (Objects.equals(createdAt, updatedAt)) {
+            return ApiResponse.onSuccess(SleepResDTO.SaveDataResponseDTO.saveDataResultDTO(sleepDataUrlEntity));
+        } else {
+            return ApiResponse.onSuccess(SleepResDTO.UpdateURLResponseDTO.updateURLResultDTO(sleepDataUrlEntity));
+        }
     }
 
     @PostMapping(value = "/data", params = "type=json")
@@ -31,6 +40,7 @@ public class SleepController {
 
         //3점 이상이면 바로 분석 데이터 업데이트
         if (req.getScore() >= 3) {
+            System.out.println("HI");
             sleepService.updateAnalysisDatas(userId, sleepData);
         }
 
@@ -45,8 +55,8 @@ public class SleepController {
     }
 
     @GetMapping("/data")
-    public ApiResponse<SleepResDTO.GetDataUrlResponseDTO> getDataUrl(@RequestBody SleepReqDTO.GetDataUrlDTO req) {
-        return ApiResponse.onSuccess(SleepResDTO.GetDataUrlResponseDTO.getDataUrlResponseDTO(sleepService.getDataUrlService(req)));
+    public ApiResponse<SleepResDTO.GetDataUrlListResponseDTO> getDataUrl(@AuthenticationPrincipal String userId, @RequestBody SleepReqDTO.GetDataUrlDTO req) {
+        return ApiResponse.onSuccess(SleepResDTO.GetDataUrlListResponseDTO.getDataUrlListResponseDTO(sleepService.getDataUrlService(userId, req)));
     }
 
     @GetMapping(value = "/analysis")
