@@ -150,7 +150,7 @@ public class SleepResDTO {
         String timeOnBed;
 
         public static GetDailyDataDTO getDailyDataDTO(SleepDataEntity entity) {
-            String awakeTimeStr = timeStringGenerator(entity.getAwakeTime());
+            String awakeTimeStr = entity.getAwakeTime().getHour() + "시 " + entity.getAwakeTime().getMinute() + "분";
             String fellAsleepTimeStr = timeStringGenerator(entity.getFellAsleepTime());
             String sleepTimeStr = timeStringGenerator(entity.getSleepTime());
             String timeOnBedStr = timeStringGenerator(entity.getTimeOnBed());
