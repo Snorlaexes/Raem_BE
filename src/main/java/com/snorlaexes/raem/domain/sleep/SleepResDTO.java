@@ -12,6 +12,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SleepResDTO {
+    private static String timeStringGenerator(LocalTime dataTime) {
+        int hours = dataTime.getHour();
+        int minutes = dataTime.getMinute();
+
+        if (hours > 0) {
+            return hours + "시간 " + minutes + "분";
+        } else {
+            return minutes + "분";
+        }
+    }
 
     @Builder
     @Getter
@@ -134,20 +144,25 @@ public class SleepResDTO {
         LocalDate sleptAt;
         Integer score;
         BadAwakeReason badAwakeReason;
-        LocalTime awakeTime;
-        LocalTime fellAsleepTime;
-        LocalTime sleepTime;
-        LocalTime timeOnBed;
+        String awakeTime;
+        String fellAsleepTime;
+        String sleepTime;
+        String timeOnBed;
 
         public static GetDailyDataDTO getDailyDataDTO(SleepDataEntity entity) {
+            String awakeTimeStr = timeStringGenerator(entity.getAwakeTime());
+            String fellAsleepTimeStr = timeStringGenerator(entity.getFellAsleepTime());
+            String sleepTimeStr = timeStringGenerator(entity.getSleepTime());
+            String timeOnBedStr = timeStringGenerator(entity.getTimeOnBed());
+
             return GetDailyDataDTO.builder()
                     .sleptAt(entity.getSleptAt())
                     .score(entity.getScore())
                     .badAwakeReason(entity.getBadAwakeReason())
-                    .awakeTime(entity.getAwakeTime())
-                    .fellAsleepTime(entity.getFellAsleepTime())
-                    .sleepTime(entity.getSleepTime())
-                    .timeOnBed(entity.getTimeOnBed())
+                    .awakeTime(awakeTimeStr)
+                    .fellAsleepTime(fellAsleepTimeStr)
+                    .sleepTime(sleepTimeStr)
+                    .timeOnBed(timeOnBedStr)
                     .build();
         }
     }
