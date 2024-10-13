@@ -141,6 +141,7 @@ public class SleepResDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class GetDailyDataDTO {
+        String dataId;
         LocalDate sleptAt;
         Integer score;
         BadAwakeReason badAwakeReason;
@@ -156,6 +157,7 @@ public class SleepResDTO {
             String timeOnBedStr = timeStringGenerator(entity.getTimeOnBed());
 
             return GetDailyDataDTO.builder()
+                    .dataId(entity.getId())
                     .sleptAt(entity.getSleptAt())
                     .score(entity.getScore())
                     .badAwakeReason(entity.getBadAwakeReason())
