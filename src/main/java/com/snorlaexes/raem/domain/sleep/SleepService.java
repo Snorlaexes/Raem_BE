@@ -460,7 +460,7 @@ public class SleepService {
         List<SleepDataEntity> sleepDataEntities = sleepDataRepository.findAllByUserAndScoreGreaterThan(user, 3);
 
         long sleepTimeSum = 0L;
-        long count = 0L;
+        long count = 1L;
         for (SleepDataEntity data : sleepDataEntities) {
             sleepTimeSum += data.getSleepTime().toSecondOfDay();
             count += 1;
