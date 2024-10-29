@@ -47,6 +47,7 @@ public class SleepService {
         // 확장자 검사
         assert file != null;
         String filename = file.getOriginalFilename();
+        assert filename != null;
         String extension = filename.split("\\.")[1];
         if (!Objects.equals(extension, "csv") && !Objects.equals(extension, "mlmodel")) {
             throw new ExceptionHandler(ErrorStatus._WRONG_EXTENSION);
@@ -258,7 +259,7 @@ public class SleepService {
         }
 
         // GPT Query Update
-        /*String insightTag = String.valueOf(sleepData.getSleptAt().getYear());
+        String insightTag = String.valueOf(sleepData.getSleptAt().getYear());
         InsightEntity insight = insightRepository.findByUserAndTag(user, insightTag);
         List<AnalysisDataEntity> thisMonthDatas = analysisDataRepository.findByUserAndTagContaining(user, insightTag);
         String gptQueryData = generateQueryData(thisMonthDatas);
@@ -283,7 +284,7 @@ public class SleepService {
             insight.setUpdatedAt(LocalDateTime.now());
 
             insightRepository.save(insight);
-        }*/
+        }
     }
 
     private Map<String, Integer> getCurrentWeekOfMonth(LocalDate date) {
